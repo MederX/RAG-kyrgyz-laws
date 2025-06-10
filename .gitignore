@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+
+# Project specific
+log/*.log
+log/*.zip
+db/laws_db/
+.gradio/
+
+# IDE
+.vscode/
+.idea/
+*.swp
