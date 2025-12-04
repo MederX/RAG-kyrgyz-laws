@@ -4,7 +4,6 @@ from interface import create_gradio_interface
 from console import interactive_chat, single_question
 from config import *
 
-# Setup logging
 logger.add(LOG_PATH, format="{time} {level} {message}", level="DEBUG", rotation="100 KB", compression="zip")
 
 
