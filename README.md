@@ -5,9 +5,13 @@ A Retrieval-Augmented Generation (RAG) based chatbot for querying and understand
 ## 🌟 Features
 
 - Multi-lingual support (Kyrgyz/Russian) using paraphrase-multilingual-MiniLM-L12-v2
-- Vector similarity search with FAISS
-- Efficient text chunking and retrieval
-- Gradio-based user interface
+- Hybrid search: Vector similarity (FAISS) + BM25 keyword search
+- Cross-encoder reranking for better relevance
+- Query expansion with legal term synonyms
+- Self-consistency for reliable answers
+- Efficient text chunking with article extraction
+- Gradio-based user interface + Console modes
+- Caching system for faster responses
 - Logging system for debugging and monitoring
 
 ## 🛠️ Installation
@@ -21,23 +25,43 @@ cd RAG-kyrgyz-laws
 2. Create and activate virtual environment:
 ```bash
 python -m venv venv
-.\venv\Scripts\activate
+source venv/bin/activate  # Linux/Mac
+# or
+.\venv\Scripts\activate  # Windows
 ```
 
 3. Install dependencies:
 ```bash
-pip install -r requirements.txt
+pip install -r req.txt
+```
+
+4. Set up environment variables:
+```bash
+cp .env.example .env
+# Edit .env and add your Gemini API key
+# Get your key from: https://aistudio.google.com/app/apikey
+```
+
+5. Pull the LLM model (optional, now using Gemini API):
+```bash
+ollama pull phi3:3.8b
 ```
 
 ## 📂 Project Structure
 
 ```
 rag_kyrgyz_laws/
-├── laws/              # Text files containing laws
-├── db/                # FAISS vector database
-├── log/              # Log files
-├── rag_chat_final.py  # Main application file
-├── requirements.txt   # Project dependencies
+├── main.py              # Main entry point
+├── config.py            # Configuration settings
+├── database.py          # Database initialization & management
+├── retrieval.py         # Hybrid search & retrieval logic
+├── generation.py        # LLM response generation
+├── interface.py         # Gradio web interface
+├── console.py           # Console chat interface
+├── laws/                # Text files containing laws
+├── db/                  # FAISS vector database
+├── log/                 # Log files
+├── req.txt              # Project dependencies
 └── README.md
 ```
 
@@ -47,25 +71,40 @@ rag_kyrgyz_laws/
 
 2. Run the application:
 ```bash
-python rag_chat_final.py
+python main.py
 ```
 
-3. Access the Gradio interface in your browser at `http://localhost:7860`
+3. Choose mode:
+   - **1**: Gradio Web Interface (http://localhost:7860)
+   - **2**: Interactive Console Chat
+   - **3**: Single Question Mode
 
 ## 💻 Technical Details
 
-- **Embedding Model**: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
-- **Vector Store**: FAISS
-- **Text Chunking**: RecursiveCharacterTextSplitter (800 chars, 150 overlap)
-- **UI Framework**: Gradio
+### Models
+- **LLM**: phi3:3.8b (Microsoft's reasoning model)
+- **Embeddings**: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+- **Reranker**: cross-encoder/ms-marco-MiniLM-L-6-v2
+
+### Search Strategy
+- **Vector Search**: FAISS with max marginal relevance
+- **Keyword Search**: BM25 for exact term matching
+- **Hybrid Weighting**: 70% semantic + 30% keyword
+- **Reranking**: Cross-encoder on top 20 results
+
+### Text Processing
+- **Chunk Size**: 600 characters
+- **Chunk Overlap**: 100 characters
+- **Semantic Splitting**: By articles (Статья)
+- **Metadata**: Article numbers, law names, source files
 
 ## 🔧 Configuration
 
-The system uses the following default settings:
-- Chunk size: 800 characters
-- Chunk overlap: 150 characters
-- CUDA support enabled (can be modified for CPU)
-- Log rotation: 100 KB with zip compression
+Edit `config.py` to customize:
+- Model names and parameters
+- Chunk sizes and retrieval settings
+- Server host and port
+- Cache size and paths
 
 ## 📝 Logging
 
@@ -92,6 +131,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [FAISS](https://github.com/facebookresearch/faiss)
 - [Hugging Face](https://huggingface.co)
 - [Gradio](https://gradio.app)
+- [Ollama](https://ollama.ai)
 
 ## 📞 Contact
 
